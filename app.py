@@ -1,18 +1,3 @@
-"""
-AI Resume Builder - Python Flask Backend
-========================================
-Run this if you want a server-side backend.
-For most features, the frontend works standalone with Gemini API.
-
-Requirements:
-  pip install flask flask-cors google-generativeai python-dotenv
-
-Usage:
-  1. Create a .env file with: GEMINI_API_KEY=your_key_here
-  2. Run: python app.py
-  3. Open http://localhost:5000
-"""
-
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import google.generativeai as genai
