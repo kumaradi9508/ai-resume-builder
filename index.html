@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Resume Builder Chatbot</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<!-- ========== SPLASH / LOADER ========== -->
+<div id="splash">
+  <div class="splash-content">
+    <div class="splash-icon"><i class="fas fa-file-alt"></i></div>
+    <h1>AI Resume Builder</h1>
+    <p>Powered by Gemini AI · Optimized for ATS</p>
+    <div class="splash-loader"><div></div><div></div><div></div></div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="app" style="display:none">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><i class="fas fa-robot"></i> ResumeAI</div>
+      <span class="badge">Gemini Powered</span>
+    </div>
+    <div class="topbar-center">
+      <div class="step-indicator">
+        <div class="step active" data-step="1"><span>1</span><small>Info</small></div>
+        <div class="step" data-step="2"><span>2</span><small>Experience</small></div>
+        <div class="step" data-step="3"><span>3</span><small>Skills</small></div>
+        <div class="step" data-step="4"><span>4</span><small>Preview</small></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-icon" id="themeToggle" title="Toggle Theme"><i class="fas fa-moon"></i></button>
+      <button class="btn-icon" id="saveBtn" title="Save Progress"><i class="fas fa-save"></i></button>
+      <button class="btn-primary" id="downloadBtn"><i class="fas fa-download"></i> Download PDF</button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- LEFT: CHAT PANEL -->
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-header">
+        <div class="bot-avatar"><i class="fas fa-robot"></i></div>
+        <div class="bot-info">
+          <strong>ResumeAI Assistant</strong>
+          <span class="status-dot"></span><small>Online</small>
+        </div>
+        <div class="chat-actions">
+          <button class="btn-icon-sm" id="clearChat" title="Clear Chat"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon-sm" id="expandChat" title="Expand"><i class="fas fa-expand-alt"></i></button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="quick-actions" id="quickActions">
+        <button class="quick-btn" onclick="sendQuick('Improve my summary')"><i class="fas fa-magic"></i> Improve Summary</button>
+        <button class="quick-btn" onclick="sendQuick('Suggest skills for my role')"><i class="fas fa-lightbulb"></i> Suggest Skills</button>
+        <button class="quick-btn" onclick="sendQuick('Make it ATS friendly')"><i class="fas fa-check-circle"></i> ATS Optimize</button>
+        <button class="quick-btn" onclick="sendQuick('Add a project')"><i class="fas fa-plus"></i> Add Project</button>
+      </div>
+
+      <!-- INPUT AREA -->
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <button class="attach-btn" id="attachBtn" title="Paste Job Description"><i class="fas fa-briefcase"></i></button>
+          <textarea id="userInput" placeholder="Type your message..." rows="1"></textarea>
+          <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+      </div>
+    </div>
+
+    <!-- CENTER: RESUME PREVIEW -->
+    <div class="preview-panel" id="previewPanel">
+      <div class="preview-header">
+        <div class="preview-title"><i class="fas fa-eye"></i> Live Resume Preview</div>
+        <div class="preview-controls">
+          <select id="templateSelect" title="Change Template">
+            <option value="modern">Modern</option>
+            <option value="classic">Classic</option>
+            <option value="minimal">Minimal</option>
+            <option value="creative">Creative</option>
+          </select>
+          <button class="btn-icon-sm" id="zoomIn" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+          <button class="btn-icon-sm" id="zoomOut" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+          <button class="btn-icon-sm" id="printBtn" title="Print"><i class="fas fa-print"></i></button>
+        </div>
+      </div>
+
+      <div class="preview-wrapper" id="previewWrapper">
+        <div class="resume-paper" id="resumePaper">
+          <!-- Resume content rendered by JS -->
+          <div id="resumeContent">
+            <div class="empty-state">
+              <i class="fas fa-file-alt"></i>
+              <h3>Your Resume Appears Here</h3>
+              <p>Start chatting with the AI to build your resume. It updates in real-time!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATS SCORE -->
+      <div class="ats-bar" id="atsBar">
+        <span><i class="fas fa-chart-line"></i> ATS Score</span>
+        <div class="ats-meter">
+          <div class="ats-fill" id="atsFill" style="width:0%"></div>
+        </div>
+        <span id="atsScore" class="ats-num">0%</span>
+        <span id="atsLabel" class="ats-label">Start building</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: TOOLS PANEL -->
+    <div class="tools-panel" id="toolsPanel">
+      <div class="tools-header"><i class="fas fa-tools"></i> Tools</div>
+
+      <!-- JOB DESCRIPTION -->
+      <div class="tool-card">
+        <div class="tool-card-header">
+          <i class="fas fa-briefcase"></i> Job Description
+          <span class="tool-badge">ATS</span>
+        </div>
+        <textarea id="jobDesc" placeholder="Paste the job description here to tailor your resume..." rows="6"></textarea>
+        <button class="tool-btn" id="analyzeJD"><i class="fas fa-magic"></i> Analyze & Tailor</button>
+      </div>
+
+      <!-- SECTION MANAGER -->
+      <div class="tool-card">
+        <div class="tool-card-header"><i class="fas fa-layer-group"></i> Sections</div>
+        <div class="section-list" id="sectionList">
+          <div class="section-item active" data-section="summary"><i class="fas fa-user"></i> Summary <i class="fas fa-eye section-toggle"></i></div>
+          <div class="section-item active" data-section="experience"><i class="fas fa-briefcase"></i> Experience <i class="fas fa-eye section-toggle"></i></div>
+          <div class="section-item active" data-section="education"><i class="fas fa-graduation-cap"></i> Education <i class="fas fa-eye section-toggle"></i></div>
+          <div class="section-item active" data-section="skills"><i class="fas fa-code"></i> Skills <i class="fas fa-eye section-toggle"></i></div>
+          <div class="section-item active" data-section="projects"><i class="fas fa-project-diagram"></i> Projects <i class="fas fa-eye section-toggle"></i></div>
+          <div class="section-item active" data-section="certifications"><i class="fas fa-certificate"></i> Certifications <i class="fas fa-eye section-toggle"></i></div>
+        </div>
+      </div>
+
+      <!-- QUICK FILL -->
+      <div class="tool-card">
+        <div class="tool-card-header"><i class="fas fa-bolt"></i> Quick Fill</div>
+        <div class="quick-fill-grid">
+          <button class="qf-btn" onclick="quickFill('fresher')">Fresher</button>
+          <button class="qf-btn" onclick="quickFill('developer')">Developer</button>
+          <button class="qf-btn" onclick="quickFill('designer')">Designer</button>
+          <button class="qf-btn" onclick="quickFill('manager')">Manager</button>
+        </div>
+      </div>
+
+
+
+    </div>
+
+  </div><!-- end main-layout -->
+</div><!-- end app -->
+
+<!-- JOB DESC MODAL -->
+<div class="modal-overlay" id="jdModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-briefcase"></i> Paste Job Description</h3>
+      <button class="modal-close" id="closeJdModal"><i class="fas fa-times"></i></button>
+    </div>
+    <textarea id="jdModalText" placeholder="Paste the full job description here..." rows="12"></textarea>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="closeJdModal2">Cancel</button>
+      <button class="btn-primary" id="analyzeJdModal"><i class="fas fa-magic"></i> Analyze & Optimize</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
