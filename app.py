@@ -249,11 +249,10 @@ def load_resume():
         return jsonify({})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 50)
     print("  AI Resume Builder - Flask Backend")
     print("=" * 50)
-    print(f"  Gemini API: {'✓ Configured' if GEMINI_API_KEY else '✗ Not set (add to .env)'}")
-    print("  Server: http://localhost:5000")
+    print(f"  Gemini API: {'✓ Configured' if GEMINI_API_KEY else '✗ Not set'}")
     print("=" * 50)
     app.run(debug=True, port=5000)
