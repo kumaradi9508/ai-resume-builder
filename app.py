@@ -255,4 +255,6 @@ if __name__ == "__main__":
     print("=" * 50)
     print(f"  Gemini API: {'✓ Configured' if GEMINI_API_KEY else '✗ Not set'}")
     print("=" * 50)
-    app.run(debug=True, port=5000)
+
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
