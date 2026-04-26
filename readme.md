@@ -3,7 +3,7 @@
 An AI-powered Resume Builder developed as part of the INT-428: AI Essentials course.
 This application helps users create professional, ATS-optimized resumes using AI, chatbot interaction, and job description-based customization.
 
-🌐 Live Demo: https://ai-resume-builder-chatbot.netlify.app
+🌐 Live Demo: https://ai-resume-builder-z6hx.onrender.com
 
 
 📌 Project Overview
@@ -130,8 +130,7 @@ AI Integration
 
 🌐 Deployment
 
-   * Frontend: Netlify
-   * Backend: Render / Railway
+   * Frontend/Backend: Render 
 
 
 🔒 Security
